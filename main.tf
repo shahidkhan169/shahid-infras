@@ -107,7 +107,6 @@ resource "aws_instance" "bastion_host" {
     subnet_id=aws_subnet.public-subnet.id
     instance_type = "t2.micro"
     key_name="samplekey"
-    user_data = file("shell.sh")
     security_groups = [aws_security_group.bastion-sg.id]
     tags={
         Name="BastionHost"
