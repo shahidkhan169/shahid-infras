@@ -101,12 +101,25 @@ resource "aws_security_group" "bastion-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+resource "aws_key_pair" "TF-key" {
+  key_name   = "TF-key"
+  public_key = tls_private_key.rsa.public_key_openssh
+}
+
+resource "tls_private_key" "rsa" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "local_file" "TF-key"{
+    content=tls_private_key.rsa.private_key_pem
+    file_name="tfkey"
 
 resource "aws_instance" "bastion_host" {
     ami="ami-0a0f1259dd1c90938"
     subnet_id=aws_subnet.public-subnet.id
     instance_type = "t2.micro"
-    key_name="samplekey"
+    key_name="TF-key"
     security_groups = [aws_security_group.bastion-sg.id]
     tags={
         Name="BastionHost"
@@ -117,7 +130,7 @@ resource "aws_instance" "private-ec2" {
     ami="ami-0a0f1259dd1c90938"
     subnet_id=aws_subnet.private-subnet.id
     instance_type = "t2.micro"
-    key_name="samplekey"
+    key_name="TF-key"
     tags={
         Name="ec2-instances"
     }
